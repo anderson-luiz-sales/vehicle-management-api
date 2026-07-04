@@ -1,3 +1,40 @@
 spring:
   application:
     name: vehicle-management-api
+
+  profiles:
+    active: ${ENV:local}
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/vehicle_management
+    username: admin
+    password: admin
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+
+    show-sql: true
+
+    properties:
+      hibernate:
+        format_sql: true
+        hibernate:
+          dialect: org.hibernate.dialect.PostgreSQLDialect
+
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+
+  data:
+    redis:
+      host: localhost
+      port: 6379
+
+server:
+  port: ${ENV_PORT:8080}
+
+logging:
+  level:
+    org.hibernate.SQL: DEBUG
