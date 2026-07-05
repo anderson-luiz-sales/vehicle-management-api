@@ -2,7 +2,14 @@ package com.vehiclemanagement.service;
 
 import static com.vehiclemanagement.service.mapper.VehicleBrandReportMapper.mapToVehicleBrandReport;
 import static com.vehiclemanagement.service.mapper.VehicleResponseMapper.mapToVehicleResponse;
-import static com.vehiclemanagement.utils.ErrorLogsUtils.*;
+import static com.vehiclemanagement.utils.ErrorLogsUtils.ERROR_MESSAGE;
+import static com.vehiclemanagement.utils.ErrorLogsUtils.METHOD_CREATE;
+import static com.vehiclemanagement.utils.ErrorLogsUtils.METHOD_FIND_ALL;
+import static com.vehiclemanagement.utils.ErrorLogsUtils.METHOD_FIND_BY_ID;
+import static com.vehiclemanagement.utils.ErrorLogsUtils.VEHICLE_ALREADY_EXISTS;
+import static com.vehiclemanagement.utils.ErrorLogsUtils.VEHICLE_CREATE_ERROR;
+import static com.vehiclemanagement.utils.ErrorLogsUtils.VEHICLE_LIST_ERROR;
+import static com.vehiclemanagement.utils.ErrorLogsUtils.VEHICLE_NOT_FOUND;
 
 import com.vehiclemanagement.dto.request.VehicleFilterDTO;
 import com.vehiclemanagement.dto.request.VehicleRequestDTO;
@@ -15,7 +22,6 @@ import com.vehiclemanagement.service.mapper.VehicleMapper;
 import com.vehiclemanagement.service.mapper.VehicleResponseMapper;
 import com.vehiclemanagement.specification.VehicleSpecification;
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
