@@ -1,5 +1,6 @@
 package com.vehiclemanagement.controller.swagger;
 
+import com.vehiclemanagement.dto.request.VehiclePatchRequestDTO;
 import com.vehiclemanagement.dto.request.VehicleRequestDTO;
 import com.vehiclemanagement.dto.response.VehicleBrandReportResponseDTO;
 import com.vehiclemanagement.dto.response.VehicleResponseDTO;
@@ -15,6 +16,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -101,6 +103,25 @@ public interface VehicleControllerDoc {
       @Valid
       @RequestBody
       VehicleRequestDTO request
+  );
+
+  @PatchMapping("/{id}")
+  @Operation(
+      summary = "Atualizar parcialmente um veículo",
+      description = "Atualiza apenas os campos informados."
+  )
+  @ApiResponses({
+      @ApiResponse(responseCode = "200", description = "Veículo atualizado com sucesso."),
+      @ApiResponse(responseCode = "404", description = "Veículo não encontrado."),
+      @ApiResponse(responseCode = "409", description = "Placa já cadastrada.")
+  })
+  ResponseEntity<VehicleResponseDTO> patchVehicle(
+      @Parameter(description = "ID do veículo", example = "1")
+      @PathVariable Long id,
+
+      @Valid
+      @RequestBody
+      VehiclePatchRequestDTO request
   );
 
 }

@@ -3,6 +3,7 @@ package com.vehiclemanagement.controller;
 import static com.vehiclemanagement.service.mapper.VehicleFilterMapper.mapToVehicleFilter;
 
 import com.vehiclemanagement.controller.swagger.VehicleControllerDoc;
+import com.vehiclemanagement.dto.request.VehiclePatchRequestDTO;
 import com.vehiclemanagement.dto.request.VehicleRequestDTO;
 import com.vehiclemanagement.dto.response.VehicleBrandReportResponseDTO;
 import com.vehiclemanagement.dto.response.VehicleResponseDTO;
@@ -20,6 +21,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -79,5 +81,13 @@ public class VehicleController implements VehicleControllerDoc {
   @PutMapping("/{id}")
   public ResponseEntity<VehicleResponseDTO> updateVehicle(Long id, VehicleRequestDTO request) {
     return ResponseEntity.ok(vehicleService.update(id, request));
+  }
+
+  @PatchMapping("/{id}")
+  public ResponseEntity<VehicleResponseDTO> patchVehicle(
+      @PathVariable Long id,
+      @Valid @RequestBody VehiclePatchRequestDTO request
+  ) {
+    return ResponseEntity.ok(vehicleService.patch(id, request));
   }
 }

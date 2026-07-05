@@ -6,14 +6,17 @@ import static com.vehiclemanagement.utils.ErrorLogsUtils.ERROR_MESSAGE;
 import static com.vehiclemanagement.utils.ErrorLogsUtils.METHOD_CREATE;
 import static com.vehiclemanagement.utils.ErrorLogsUtils.METHOD_FIND_ALL;
 import static com.vehiclemanagement.utils.ErrorLogsUtils.METHOD_FIND_BY_ID;
+import static com.vehiclemanagement.utils.ErrorLogsUtils.METHOD_PATCH;
 import static com.vehiclemanagement.utils.ErrorLogsUtils.METHOD_UPDATE;
 import static com.vehiclemanagement.utils.ErrorLogsUtils.VEHICLE_ALREADY_EXISTS;
 import static com.vehiclemanagement.utils.ErrorLogsUtils.VEHICLE_CREATE_ERROR;
 import static com.vehiclemanagement.utils.ErrorLogsUtils.VEHICLE_LIST_ERROR;
 import static com.vehiclemanagement.utils.ErrorLogsUtils.VEHICLE_NOT_FOUND;
+import static com.vehiclemanagement.utils.ErrorLogsUtils.VEHICLE_PATCH_ERROR;
 import static com.vehiclemanagement.utils.ErrorLogsUtils.VEHICLE_UPDATE_ERROR;
 
 import com.vehiclemanagement.dto.request.VehicleFilterDTO;
+import com.vehiclemanagement.dto.request.VehiclePatchRequestDTO;
 import com.vehiclemanagement.dto.request.VehicleRequestDTO;
 import com.vehiclemanagement.dto.response.VehicleBrandReportResponseDTO;
 import com.vehiclemanagement.dto.response.VehicleResponseDTO;
@@ -144,6 +147,54 @@ public class VehicleService {
           METHOD_UPDATE,
           String.valueOf(id),
           VEHICLE_UPDATE_ERROR,
+          HttpStatus.UNPROCESSABLE_ENTITY
+      );
+    }
+  }
+
+  public VehicleResponseDTO patch(Long id, VehiclePatchRequestDTO request) {
+    try {
+      Vehicle vehicle = vehicleRepository.findByIdAndActiveTrue(id)
+          .orElseThrow(() -> new VehicleServiceException(
+              METHOD_PATCH,
+              String.valueOf(id),
+              VEHICLE_NOT_FOUND,
+              HttpStatus.NOT_FOUND
+          ));
+
+      if (request.getLicensePlate() != null && vehicleRepository.existsByLicensePlateAndIdNot(
+          request.getLicensePlate(),
+          id
+      )) {
+        throw new VehicleServiceException(
+            METHOD_PATCH,
+            request.getLicensePlate(),
+            VEHICLE_ALREADY_EXISTS,
+            HttpStatus.CONFLICT
+        );
+      }
+
+      BigDecimal priceUsd = null;
+
+      if (request.getPriceBrl() != null) {
+        priceUsd = exchangeRateService.convertBrlToUsd(request.getPriceBrl());
+      }
+
+      VehicleMapper.patchVehicle(vehicle, request, priceUsd);
+      Vehicle savedVehicle = vehicleRepository.save(vehicle);
+
+      return mapToVehicleResponse(savedVehicle);
+    } catch (VehicleServiceException ex) {
+      throw ex;
+
+    } catch (Exception ex) {
+
+      log.error(ERROR_MESSAGE, VEHICLE_PATCH_ERROR, ex.getMessage(), ex);
+
+      throw new VehicleServiceException(
+          METHOD_PATCH,
+          String.valueOf(id),
+          VEHICLE_PATCH_ERROR,
           HttpStatus.UNPROCESSABLE_ENTITY
       );
     }
