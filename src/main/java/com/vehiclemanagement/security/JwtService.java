@@ -1,0 +1,75 @@
+package com.vehiclemanagement.security;
+
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.io.Decoders;
+import io.jsonwebtoken.security.Keys;
+import javax.crypto.SecretKey;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.stereotype.Service;
+
+@Service
+public class JwtService {
+
+  @Value("${jwt.secret}")
+  private String secret;
+
+  @Value("${jwt.expiration-ms}")
+  private long expirationMs;
+
+  public String extractUsername(String token) {
+    return extractClaim(token, Claims::getSubject);
+  }
+
+  public String generateToken(UserDetails userDetails) {
+    Map<String, Object> claims = new HashMap<>();
+    List<String> roles = userDetails.getAuthorities().stream()
+        .map(GrantedAuthority::getAuthority)
+        .toList();
+    claims.put("roles", roles);
+
+    Date now = new Date();
+    Date expiration = new Date(now.getTime() + expirationMs);
+
+    return Jwts.builder()
+        .claims(claims)
+        .subject(userDetails.getUsername())
+        .issuedAt(now)
+        .expiration(expiration)
+        .signWith(getSignInKey())
+        .compact();
+  }
+
+  public long getExpirationMs() {
+    return expirationMs;
+  }
+
+  public boolean isTokenValid(String token, UserDetails userDetails) {
+    String username = extractUsername(token);
+    return username.equals(userDetails.getUsername()) && !isTokenExpired(token);
+  }
+
+  private boolean isTokenExpired(String token) {
+    return extractClaim(token, Claims::getExpiration).before(new Date());
+  }
+
+  private <T> T extractClaim(String token, Function<Claims, T> resolver) {
+    Claims claims = Jwts.parser()
+        .verifyWith(getSignInKey())
+        .build()
+        .parseSignedClaims(token)
+        .getPayload();
+    return resolver.apply(claims);
+  }
+
+  private SecretKey getSignInKey() {
+    return Keys.hmacShaKeyFor(Decoders.BASE64.decode(secret));
+  }
+}

@@ -1,4 +1,4 @@
-FROM eclipse-temurin:21-jdk AS builder
+FROM eclipse-temurin:17-jdk AS builder
 
 WORKDIR /app
 
@@ -6,7 +6,7 @@ COPY . .
 
 RUN ./gradlew clean bootJar --no-daemon
 
-FROM eclipse-temurin:21-jre
+FROM eclipse-temurin:17-jre
 
 WORKDIR /app
 

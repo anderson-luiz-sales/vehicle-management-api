@@ -58,3 +58,7 @@ exchange:
 
   frankfurter:
     url: https://api.frankfurter.app
+
+jwt:
+  secret: ${JWT_SECRET:H5VuzAJ0C/zcd2CDwZwMlDdNhHXLNVqEK+YGuwDG8E3kXxe1tDmzJJ786gh8qHYzeFwfrFQ6W0yBu03fTSl4Vw==}
+  expiration-ms: ${JWT_EXPIRATION_MS:86400000}

@@ -1,14 +1,18 @@
 package com.vehiclemanagement.handler;
 
 import com.vehiclemanagement.exception.VehicleServiceException;
+import java.time.Instant;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
-import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-
-import java.util.HashMap;
-import java.util.Map;
+import org.springframework.web.bind.annotation.ControllerAdvice;
+import org.springframework.web.context.request.WebRequest;
 
 @ControllerAdvice
 public class CustomExceptionHandler {
@@ -44,4 +48,35 @@ public class CustomExceptionHandler {
         .body(response);
   }
 
+  @ExceptionHandler(AuthenticationException.class)
+  public ResponseEntity<Map<String, Object>> handleAuthenticationException(
+      AuthenticationException ex,
+      WebRequest request
+  ) {
+    return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+        .body(buildErrorResponse(HttpStatus.UNAUTHORIZED, ex.getMessage(), request));
+  }
+
+  @ExceptionHandler(AccessDeniedException.class)
+  public ResponseEntity<Map<String, Object>> handleAccessDeniedException(
+      AccessDeniedException ex,
+      WebRequest request
+  ) {
+    return ResponseEntity.status(HttpStatus.FORBIDDEN)
+        .body(buildErrorResponse(HttpStatus.FORBIDDEN, ex.getMessage(), request));
+  }
+
+  private Map<String, Object> buildErrorResponse(
+      HttpStatus status,
+      String message,
+      WebRequest request
+  ) {
+    Map<String, Object> response = new LinkedHashMap<>();
+    response.put("timestamp", Instant.now().toString());
+    response.put("status", status.value());
+    response.put("error", status.getReasonPhrase());
+    response.put("message", message);
+    response.put("path", request.getDescription(false).replace("uri=", ""));
+    return response;
+  }
 }
