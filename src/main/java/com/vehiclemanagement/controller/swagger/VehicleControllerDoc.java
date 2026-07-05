@@ -15,6 +15,7 @@ import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -122,6 +123,20 @@ public interface VehicleControllerDoc {
       @Valid
       @RequestBody
       VehiclePatchRequestDTO request
+  );
+
+  @DeleteMapping("/{id}")
+  @Operation(
+      summary = "Remover veículo",
+      description = "Realiza a remoção lógica (soft delete) de um veículo."
+  )
+  @ApiResponses({
+      @ApiResponse(responseCode = "204", description = "Veículo removido com sucesso."),
+      @ApiResponse(responseCode = "404", description = "Veículo não encontrado.")
+  })
+  ResponseEntity<Void> deleteVehicle(
+      @Parameter(description = "ID do veículo", example = "1")
+      @PathVariable Long id
   );
 
 }

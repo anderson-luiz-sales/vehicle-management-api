@@ -4,12 +4,14 @@ import static com.vehiclemanagement.service.mapper.VehicleBrandReportMapper.mapT
 import static com.vehiclemanagement.service.mapper.VehicleResponseMapper.mapToVehicleResponse;
 import static com.vehiclemanagement.utils.ErrorLogsUtils.ERROR_MESSAGE;
 import static com.vehiclemanagement.utils.ErrorLogsUtils.METHOD_CREATE;
+import static com.vehiclemanagement.utils.ErrorLogsUtils.METHOD_DELETE;
 import static com.vehiclemanagement.utils.ErrorLogsUtils.METHOD_FIND_ALL;
 import static com.vehiclemanagement.utils.ErrorLogsUtils.METHOD_FIND_BY_ID;
 import static com.vehiclemanagement.utils.ErrorLogsUtils.METHOD_PATCH;
 import static com.vehiclemanagement.utils.ErrorLogsUtils.METHOD_UPDATE;
 import static com.vehiclemanagement.utils.ErrorLogsUtils.VEHICLE_ALREADY_EXISTS;
 import static com.vehiclemanagement.utils.ErrorLogsUtils.VEHICLE_CREATE_ERROR;
+import static com.vehiclemanagement.utils.ErrorLogsUtils.VEHICLE_DELETE_ERROR;
 import static com.vehiclemanagement.utils.ErrorLogsUtils.VEHICLE_LIST_ERROR;
 import static com.vehiclemanagement.utils.ErrorLogsUtils.VEHICLE_NOT_FOUND;
 import static com.vehiclemanagement.utils.ErrorLogsUtils.VEHICLE_PATCH_ERROR;
@@ -186,15 +188,37 @@ public class VehicleService {
       return mapToVehicleResponse(savedVehicle);
     } catch (VehicleServiceException ex) {
       throw ex;
-
     } catch (Exception ex) {
-
       log.error(ERROR_MESSAGE, VEHICLE_PATCH_ERROR, ex.getMessage(), ex);
-
       throw new VehicleServiceException(
           METHOD_PATCH,
           String.valueOf(id),
           VEHICLE_PATCH_ERROR,
+          HttpStatus.UNPROCESSABLE_ENTITY
+      );
+    }
+  }
+
+  public void delete(Long id) {
+    try {
+      Vehicle vehicle = vehicleRepository.findByIdAndActiveTrue(id)
+          .orElseThrow(() -> new VehicleServiceException(
+              METHOD_DELETE,
+              String.valueOf(id),
+              VEHICLE_NOT_FOUND,
+              HttpStatus.NOT_FOUND
+          ));
+
+      vehicle.setActive(false);
+      vehicleRepository.save(vehicle);
+    } catch (VehicleServiceException ex) {
+      throw ex;
+    } catch (Exception ex) {
+      log.error(ERROR_MESSAGE, VEHICLE_DELETE_ERROR, ex.getMessage(), ex);
+      throw new VehicleServiceException(
+          METHOD_DELETE,
+          String.valueOf(id),
+          VEHICLE_DELETE_ERROR,
           HttpStatus.UNPROCESSABLE_ENTITY
       );
     }
