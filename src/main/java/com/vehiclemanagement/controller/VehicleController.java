@@ -15,6 +15,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -49,4 +50,10 @@ public class VehicleController implements VehicleControllerDoc {
         maxPrice), pageable));
   }
 
+  @GetMapping("/{id}")
+  @Override
+  public ResponseEntity<VehicleResponseDTO> findVehicleById(@PathVariable Long id) {
+    log.info("Finding vehicle by id: {}", id);
+    return ResponseEntity.ok(vehicleService.findById(id));
+  }
 }

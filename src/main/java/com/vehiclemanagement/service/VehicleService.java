@@ -1,5 +1,8 @@
 package com.vehiclemanagement.service;
 
+import static com.vehiclemanagement.service.mapper.VehicleResponseMapper.mapToVehicleResponse;
+import static com.vehiclemanagement.utils.ErrorLogsUtils.*;
+
 import com.vehiclemanagement.dto.request.VehicleFilterDTO;
 import com.vehiclemanagement.dto.response.VehicleResponseDTO;
 import com.vehiclemanagement.entity.Vehicle;
@@ -19,10 +22,6 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class VehicleService {
 
-  private static final String ERROR_MESSAGE = "{}: {}";
-  private static final String METHOD_FIND_ALL = "findAllVehicles";
-  private static final String VEHICLE_LIST_ERROR = "Erro ao listar veículos.";
-
   private final VehicleRepository vehicleRepository;
 
   public Page<VehicleResponseDTO> findAll(VehicleFilterDTO filter, Pageable pageable) {
@@ -40,5 +39,17 @@ public class VehicleService {
           HttpStatus.UNPROCESSABLE_ENTITY
       );
     }
+  }
+
+  public VehicleResponseDTO findById(Long id) {
+    Vehicle vehicle = vehicleRepository.findByIdAndActiveTrue(id)
+        .orElseThrow(() -> new VehicleServiceException(
+            METHOD_FIND_BY_ID,
+            String.valueOf(id),
+            VEHICLE_NOT_FOUND,
+            HttpStatus.NOT_FOUND
+        ));
+
+    return mapToVehicleResponse(vehicle);
   }
 }

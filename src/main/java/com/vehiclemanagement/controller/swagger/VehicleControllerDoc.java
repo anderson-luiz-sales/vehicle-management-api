@@ -10,6 +10,8 @@ import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 
 public interface VehicleControllerDoc {
 
@@ -38,6 +40,20 @@ public interface VehicleControllerDoc {
       BigDecimal maxPrice,
 
       @ParameterObject Pageable pageable
+  );
+
+  @Operation(
+      summary = "Busca um veículo por ID",
+      description = "Retorna os detalhes de um veículo pelo seu identificador."
+  )
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "200", description = "Veículo encontrado com sucesso."),
+      @ApiResponse(responseCode = "404", description = "Veículo não encontrado.")
+  })
+  @GetMapping("/{id}")
+  ResponseEntity<VehicleResponseDTO> findVehicleById(
+      @Parameter(description = "ID do veículo", example = "1")
+      @PathVariable Long id
   );
 
 }
