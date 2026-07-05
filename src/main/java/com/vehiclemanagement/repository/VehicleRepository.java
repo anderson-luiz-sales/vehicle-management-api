@@ -23,4 +23,6 @@ public interface VehicleRepository extends JpaRepository<Vehicle, Long>,
       """)
   List<Object[]> countVehiclesByBrand();
 
+  boolean existsByLicensePlate(String licensePlate);
+
 }

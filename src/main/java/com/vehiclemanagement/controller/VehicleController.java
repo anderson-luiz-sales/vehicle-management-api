@@ -3,10 +3,12 @@ package com.vehiclemanagement.controller;
 import static com.vehiclemanagement.service.mapper.VehicleFilterMapper.mapToVehicleFilter;
 
 import com.vehiclemanagement.controller.swagger.VehicleControllerDoc;
+import com.vehiclemanagement.dto.request.VehicleRequestDTO;
 import com.vehiclemanagement.dto.response.VehicleBrandReportResponseDTO;
 import com.vehiclemanagement.dto.response.VehicleResponseDTO;
 import com.vehiclemanagement.exception.BadRequestMessageException;
 import com.vehiclemanagement.service.VehicleService;
+import jakarta.validation.Valid;
 import java.math.BigDecimal;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -14,10 +16,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -32,7 +37,6 @@ public class VehicleController implements VehicleControllerDoc {
 
   private final VehicleService vehicleService;
 
-  @Override
   @GetMapping
   public ResponseEntity<Page<VehicleResponseDTO>> findAllVehicles(
       @RequestParam(required = false) String brand,
@@ -53,16 +57,21 @@ public class VehicleController implements VehicleControllerDoc {
   }
 
   @GetMapping("/{id}")
-  @Override
   public ResponseEntity<VehicleResponseDTO> findVehicleById(@PathVariable Long id) {
     log.info("Finding vehicle by id: {}", id);
     return ResponseEntity.ok(vehicleService.findById(id));
   }
 
   @GetMapping("/reports/by-brand")
-  @Override
   public ResponseEntity<List<VehicleBrandReportResponseDTO>> getVehiclesByBrand() {
     log.info("Generating report grouped by brand.");
     return ResponseEntity.ok(vehicleService.getVehiclesByBrand());
+  }
+
+  @PostMapping
+  public ResponseEntity<VehicleResponseDTO> createVehicle(
+      @Valid @RequestBody VehicleRequestDTO request) {
+    log.info("Creating vehicle.");
+    return ResponseEntity.status(HttpStatus.CREATED).body(vehicleService.create(request));
   }
 }

@@ -20,5 +20,6 @@ public class ErrorLogsUtils {
   public static final String VEHICLE_CREATE_ERROR = "Erro ao cadastrar veículo.";
   public static final String VEHICLE_UPDATE_ERROR = "Erro ao atualizar veículo.";
   public static final String VEHICLE_DELETE_ERROR = "Erro ao remover veículo.";
+  public static final String VEHICLE_ALREADY_EXISTS = "Já existe um veículo com esta placa.";
 
 }

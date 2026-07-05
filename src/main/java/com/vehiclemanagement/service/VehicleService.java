@@ -5,13 +5,17 @@ import static com.vehiclemanagement.service.mapper.VehicleResponseMapper.mapToVe
 import static com.vehiclemanagement.utils.ErrorLogsUtils.*;
 
 import com.vehiclemanagement.dto.request.VehicleFilterDTO;
+import com.vehiclemanagement.dto.request.VehicleRequestDTO;
 import com.vehiclemanagement.dto.response.VehicleBrandReportResponseDTO;
 import com.vehiclemanagement.dto.response.VehicleResponseDTO;
 import com.vehiclemanagement.entity.Vehicle;
 import com.vehiclemanagement.exception.VehicleServiceException;
 import com.vehiclemanagement.repository.VehicleRepository;
+import com.vehiclemanagement.service.mapper.VehicleMapper;
 import com.vehiclemanagement.service.mapper.VehicleResponseMapper;
 import com.vehiclemanagement.specification.VehicleSpecification;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,6 +30,7 @@ import org.springframework.stereotype.Service;
 public class VehicleService {
 
   private final VehicleRepository vehicleRepository;
+  private final ExchangeRateService exchangeRateService;
 
   public Page<VehicleResponseDTO> findAll(VehicleFilterDTO filter, Pageable pageable) {
     try {
@@ -67,6 +72,42 @@ public class VehicleService {
           METHOD_FIND_ALL,
           "",
           VEHICLE_LIST_ERROR,
+          HttpStatus.UNPROCESSABLE_ENTITY
+      );
+    }
+  }
+
+  public VehicleResponseDTO create(VehicleRequestDTO request) {
+    try {
+      if (vehicleRepository.existsByLicensePlate(request.getLicensePlate())) {
+        throw new VehicleServiceException(
+            METHOD_CREATE,
+            request.getLicensePlate(),
+            VEHICLE_ALREADY_EXISTS,
+            HttpStatus.CONFLICT
+        );
+      }
+
+      BigDecimal priceUsd = exchangeRateService.convertBrlToUsd(
+          request.getPriceBrl()
+      );
+
+      Vehicle vehicle = VehicleMapper.mapToVehicle(
+          request,
+          priceUsd
+      );
+
+      Vehicle savedVehicle = vehicleRepository.save(vehicle);
+
+      return mapToVehicleResponse(savedVehicle);
+    } catch (VehicleServiceException ex) {
+      throw ex;
+    } catch (Exception ex) {
+      log.error(ERROR_MESSAGE, VEHICLE_CREATE_ERROR, ex.getMessage(), ex);
+      throw new VehicleServiceException(
+          METHOD_CREATE,
+          "",
+          VEHICLE_CREATE_ERROR,
           HttpStatus.UNPROCESSABLE_ENTITY
       );
     }
