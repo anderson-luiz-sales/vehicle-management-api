@@ -24,17 +24,17 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint 
       HttpServletRequest request,
       HttpServletResponse response,
       AuthenticationException exception
-  ) throws IOException, ServletException {
+  ) throws IOException {
     response.setStatus(HttpStatus.UNAUTHORIZED.value());
     response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-    objectMapper.writeValue(response.getOutputStream(), buildBody(request, HttpStatus.UNAUTHORIZED));
+    objectMapper.writeValue(response.getOutputStream(), buildBody(request));
   }
 
-  private Map<String, Object> buildBody(HttpServletRequest request, HttpStatus status) {
+  private Map<String, Object> buildBody(HttpServletRequest request) {
     Map<String, Object> body = new LinkedHashMap<>();
     body.put("timestamp", Instant.now().toString());
-    body.put("status", status.value());
-    body.put("error", status.getReasonPhrase());
+    body.put("status", HttpStatus.UNAUTHORIZED.value());
+    body.put("error", HttpStatus.UNAUTHORIZED.getReasonPhrase());
     body.put("message", "Authentication is required to access this resource");
     body.put("path", request.getRequestURI());
     return body;

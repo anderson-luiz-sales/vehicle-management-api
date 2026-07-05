@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
+import lombok.Getter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -21,6 +22,7 @@ public class JwtService {
   @Value("${jwt.secret}")
   private String secret;
 
+  @Getter
   @Value("${jwt.expiration-ms}")
   private long expirationMs;
 
@@ -45,10 +47,6 @@ public class JwtService {
         .expiration(expiration)
         .signWith(getSignInKey())
         .compact();
-  }
-
-  public long getExpirationMs() {
-    return expirationMs;
   }
 
   public boolean isTokenValid(String token, UserDetails userDetails) {

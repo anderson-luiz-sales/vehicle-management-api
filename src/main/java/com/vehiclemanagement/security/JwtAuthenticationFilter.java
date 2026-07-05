@@ -7,6 +7,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import lombok.RequiredArgsConstructor;
+import org.jspecify.annotations.NonNull;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -25,8 +26,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
   @Override
   protected void doFilterInternal(
       HttpServletRequest request,
-      HttpServletResponse response,
-      FilterChain filterChain
+      @NonNull HttpServletResponse response,
+      @NonNull FilterChain filterChain
   ) throws ServletException, IOException {
 
     String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
