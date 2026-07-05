@@ -1,11 +1,13 @@
 package com.vehiclemanagement.controller.swagger;
 
+import com.vehiclemanagement.dto.response.VehicleBrandReportResponseDTO;
 import com.vehiclemanagement.dto.response.VehicleResponseDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import java.math.BigDecimal;
+import java.util.List;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -55,5 +57,16 @@ public interface VehicleControllerDoc {
       @Parameter(description = "ID do veículo", example = "1")
       @PathVariable Long id
   );
+
+
+  @GetMapping("/reports/by-brand")
+  @Operation(
+      summary = "Relatório de veículos por marca",
+      description = "Retorna a quantidade de veículos agrupados por marca."
+  )
+  @ApiResponses({
+      @ApiResponse(responseCode = "200", description = "Relatório gerado com sucesso.")
+  })
+  ResponseEntity<List<VehicleBrandReportResponseDTO>> getVehiclesByBrand();
 
 }

@@ -3,10 +3,12 @@ package com.vehiclemanagement.controller;
 import static com.vehiclemanagement.service.mapper.VehicleFilterMapper.mapToVehicleFilter;
 
 import com.vehiclemanagement.controller.swagger.VehicleControllerDoc;
+import com.vehiclemanagement.dto.response.VehicleBrandReportResponseDTO;
 import com.vehiclemanagement.dto.response.VehicleResponseDTO;
 import com.vehiclemanagement.exception.BadRequestMessageException;
 import com.vehiclemanagement.service.VehicleService;
 import java.math.BigDecimal;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springdoc.core.annotations.ParameterObject;
@@ -55,5 +57,12 @@ public class VehicleController implements VehicleControllerDoc {
   public ResponseEntity<VehicleResponseDTO> findVehicleById(@PathVariable Long id) {
     log.info("Finding vehicle by id: {}", id);
     return ResponseEntity.ok(vehicleService.findById(id));
+  }
+
+  @GetMapping("/reports/by-brand")
+  @Override
+  public ResponseEntity<List<VehicleBrandReportResponseDTO>> getVehiclesByBrand() {
+    log.info("Generating report grouped by brand.");
+    return ResponseEntity.ok(vehicleService.getVehiclesByBrand());
   }
 }
