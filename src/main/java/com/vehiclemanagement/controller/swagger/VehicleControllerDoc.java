@@ -17,6 +17,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
 public interface VehicleControllerDoc {
@@ -68,9 +69,7 @@ public interface VehicleControllerDoc {
       summary = "Relatório de veículos por marca",
       description = "Retorna a quantidade de veículos agrupados por marca."
   )
-  @ApiResponses({
-      @ApiResponse(responseCode = "200", description = "Relatório gerado com sucesso.")
-  })
+  @ApiResponses({@ApiResponse(responseCode = "200", description = "Relatório gerado com sucesso.")})
   ResponseEntity<List<VehicleBrandReportResponseDTO>> getVehiclesByBrand();
 
   @PostMapping
@@ -82,7 +81,26 @@ public interface VehicleControllerDoc {
       @ApiResponse(responseCode = "201", description = "Veículo cadastrado."),
       @ApiResponse(responseCode = "409", description = "Placa já cadastrada.")
   })
-  ResponseEntity<VehicleResponseDTO> createVehicle(
-      @Valid @RequestBody VehicleRequestDTO request);
+  ResponseEntity<VehicleResponseDTO> createVehicle(@Valid @RequestBody VehicleRequestDTO request);
+
+  @PutMapping("/{id}")
+  @Operation(
+      summary = "Atualizar veículo",
+      description = "Atualiza completamente os dados de um veículo existente."
+  )
+  @ApiResponses({
+      @ApiResponse(responseCode = "200", description = "Veículo atualizado com sucesso."),
+      @ApiResponse(responseCode = "400", description = "Dados inválidos."),
+      @ApiResponse(responseCode = "404", description = "Veículo não encontrado."),
+      @ApiResponse(responseCode = "409", description = "Placa já cadastrada.")
+  })
+  ResponseEntity<VehicleResponseDTO> updateVehicle(
+      @Parameter(description = "ID do veículo", example = "1")
+      @PathVariable Long id,
+
+      @Valid
+      @RequestBody
+      VehicleRequestDTO request
+  );
 
 }

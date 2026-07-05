@@ -12,7 +12,6 @@ public class ExchangeRateService {
   private final ExchangeRateCacheService exchangeRateCacheService;
 
   public BigDecimal convertBrlToUsd(BigDecimal priceBrl) {
-
     BigDecimal dollarRate = exchangeRateCacheService.getDollarRate();
 
     if (dollarRate == null || BigDecimal.ZERO.compareTo(dollarRate) == 0) {

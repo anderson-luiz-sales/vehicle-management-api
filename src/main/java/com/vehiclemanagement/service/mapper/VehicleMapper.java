@@ -24,4 +24,19 @@ public class VehicleMapper {
         .build();
   }
 
+  public static void updateVehicle(
+      Vehicle vehicle,
+      VehicleRequestDTO request,
+      BigDecimal priceUsd
+  ) {
+
+    vehicle.setBrand(request.getBrand());
+    vehicle.setModel(request.getModel());
+    vehicle.setYear(request.getYear());
+    vehicle.setColor(request.getColor());
+    vehicle.setLicensePlate(request.getLicensePlate());
+    vehicle.setPriceUsd(priceUsd);
+
+  }
+
 }

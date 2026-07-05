@@ -6,10 +6,12 @@ import static com.vehiclemanagement.utils.ErrorLogsUtils.ERROR_MESSAGE;
 import static com.vehiclemanagement.utils.ErrorLogsUtils.METHOD_CREATE;
 import static com.vehiclemanagement.utils.ErrorLogsUtils.METHOD_FIND_ALL;
 import static com.vehiclemanagement.utils.ErrorLogsUtils.METHOD_FIND_BY_ID;
+import static com.vehiclemanagement.utils.ErrorLogsUtils.METHOD_UPDATE;
 import static com.vehiclemanagement.utils.ErrorLogsUtils.VEHICLE_ALREADY_EXISTS;
 import static com.vehiclemanagement.utils.ErrorLogsUtils.VEHICLE_CREATE_ERROR;
 import static com.vehiclemanagement.utils.ErrorLogsUtils.VEHICLE_LIST_ERROR;
 import static com.vehiclemanagement.utils.ErrorLogsUtils.VEHICLE_NOT_FOUND;
+import static com.vehiclemanagement.utils.ErrorLogsUtils.VEHICLE_UPDATE_ERROR;
 
 import com.vehiclemanagement.dto.request.VehicleFilterDTO;
 import com.vehiclemanagement.dto.request.VehicleRequestDTO;
@@ -69,9 +71,7 @@ public class VehicleService {
 
   public List<VehicleBrandReportResponseDTO> getVehiclesByBrand() {
     try {
-      return mapToVehicleBrandReport(
-          vehicleRepository.countVehiclesByBrand()
-      );
+      return mapToVehicleBrandReport(vehicleRepository.countVehiclesByBrand());
     } catch (Exception ex) {
       log.error(ERROR_MESSAGE, VEHICLE_LIST_ERROR, ex.getMessage(), ex);
       throw new VehicleServiceException(
@@ -94,15 +94,8 @@ public class VehicleService {
         );
       }
 
-      BigDecimal priceUsd = exchangeRateService.convertBrlToUsd(
-          request.getPriceBrl()
-      );
-
-      Vehicle vehicle = VehicleMapper.mapToVehicle(
-          request,
-          priceUsd
-      );
-
+      BigDecimal priceUsd = exchangeRateService.convertBrlToUsd(request.getPriceBrl());
+      Vehicle vehicle = VehicleMapper.mapToVehicle(request, priceUsd);
       Vehicle savedVehicle = vehicleRepository.save(vehicle);
 
       return mapToVehicleResponse(savedVehicle);
@@ -114,6 +107,43 @@ public class VehicleService {
           METHOD_CREATE,
           "",
           VEHICLE_CREATE_ERROR,
+          HttpStatus.UNPROCESSABLE_ENTITY
+      );
+    }
+  }
+
+  public VehicleResponseDTO update(Long id, VehicleRequestDTO request) {
+    try {
+      Vehicle vehicle = vehicleRepository.findByIdAndActiveTrue(id)
+          .orElseThrow(() -> new VehicleServiceException(
+              METHOD_UPDATE,
+              String.valueOf(id),
+              VEHICLE_NOT_FOUND,
+              HttpStatus.NOT_FOUND
+          ));
+
+      if (vehicleRepository.existsByLicensePlateAndIdNot(request.getLicensePlate(), id)) {
+        throw new VehicleServiceException(
+            METHOD_UPDATE,
+            request.getLicensePlate(),
+            VEHICLE_ALREADY_EXISTS,
+            HttpStatus.CONFLICT
+        );
+      }
+
+      BigDecimal priceUsd = exchangeRateService.convertBrlToUsd(request.getPriceBrl());
+      VehicleMapper.updateVehicle(vehicle, request, priceUsd);
+      Vehicle savedVehicle = vehicleRepository.save(vehicle);
+      return mapToVehicleResponse(savedVehicle);
+
+    } catch (VehicleServiceException ex) {
+      throw ex;
+    } catch (Exception ex) {
+      log.error(ERROR_MESSAGE, VEHICLE_UPDATE_ERROR, ex.getMessage(), ex);
+      throw new VehicleServiceException(
+          METHOD_UPDATE,
+          String.valueOf(id),
+          VEHICLE_UPDATE_ERROR,
           HttpStatus.UNPROCESSABLE_ENTITY
       );
     }

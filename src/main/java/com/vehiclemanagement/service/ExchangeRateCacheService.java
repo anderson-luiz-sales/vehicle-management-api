@@ -18,7 +18,6 @@ public class ExchangeRateCacheService {
 
   @Cacheable(value = "usd-rate", key = "'current'")
   public BigDecimal getDollarRate() {
-
     log.info("Buscando cotação na API...");
 
     try {
@@ -29,9 +28,7 @@ public class ExchangeRateCacheService {
               .getBid()
       );
     } catch (Exception ex) {
-
       log.warn("AwesomeAPI indisponível. Utilizando Frankfurter.");
-
       return frankfurterApiClient
           .getDollarRate()
           .getRates()
